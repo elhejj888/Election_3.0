@@ -179,6 +179,6 @@ def email_password_login(request):
 
     return render(request, 'login_email.html', {'form': form, 'error_message': error_message})
 
-
-
+def index(request):
+    return render(request, 'index.html')
 

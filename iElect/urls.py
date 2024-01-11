@@ -10,6 +10,7 @@ urlpatterns = [
     path('register', views.register, name='register'),
     path('login_email', views.email_password_login, name='email_password_login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('', views.index, name='index'),
 ]
 appname='iElect'
 
