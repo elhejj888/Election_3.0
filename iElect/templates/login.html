@@ -1,0 +1,130 @@
+{% load tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% tailwind_css %}
+</head>
+<body>
+    <div class="font-[sans-serif] text-[#333]">
+        <div class="min-h-screen flex fle-col items-center justify-center py-6 px-4">
+          <div class="grid md:grid-cols-2 items-center gap-4 max-w-7xl w-full">
+            <div class="border border-gray-300 rounded-md p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
+              <form class="space-y-6">
+                <div class="mb-10">
+                  <h3 class="text-3xl font-extrabold">Log in</h3>
+                  <p class="text-sm mt-4">Sign in to your account and explore a world of possibilities. Your journey begins here.</p>
+                </div>
+                <div class="!mt-10">
+                  <button id="auth-metamask" type="button" class="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded bg-orange-500 text-white bg-[#333] hover:bg-black focus:outline-none">
+                    <img src="{% static 'images/metamask.svg' %}" alt="Metamask" class="max-h-6 inline-block mr-2">
+                         Log in with MetaMask
+                  </button>
+                </div>
+                <p class="text-sm !mt-10 text-center">Don't have an account <a href="javascript:void(0);" class="text-blue-600 hover:underline ml-1 whitespace-nowrap">Register here</a></p>
+              </form>
+            </div>
+            <div class="lg:h-[400px] md:h-[300px] max-md:mt-10">
+              <img src="https://readymadeui.com/login-image.webp" class="w-full h-full object-cover" alt="Dining Experience" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Your existing script tag for libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+
+    <script>
+        console.log('Login template script loaded.');
+
+        const elBtnMetamask = document.getElementById('auth-metamask');
+
+        const handleApiPost = async (endpoint, params) => {
+            console.log(`Making API request to ${endpoint}`);
+            const result = await axios.post(`${endpoint}`, params, {
+                headers: {
+                    'content-type': 'application/json',
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+            });
+            console.log('API response:', result.data);
+            return result.data;
+        };
+
+        const requestMessage = (account, chain) =>
+            handleApiPost('{% url 'request_message' %}', {
+                address: account,
+                chain: chain,
+                network: 'evm',
+            });
+
+        const verifyMessage = (message, signature) =>
+            handleApiPost('{% url 'verify_message' %}', {
+                message,
+                signature,
+                network: 'evm',
+            });
+
+        const connectToMetamask = async () => {
+            const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+            const [accounts, chainId] = await Promise.all([
+                provider.send('eth_requestAccounts', []),
+                provider.send('eth_chainId', []),
+            ]);
+
+            const signer = provider.getSigner();
+            return { signer, chain: chainId, account: accounts[0] };
+        };
+
+        const handleAuth = async () => {
+            elBtnMetamask.disabled = true;
+
+            try {
+                const { signer, chain, account } = await connectToMetamask();
+                console.log("account", account, "chain", chain);
+
+                if (!account || !chain) {
+                    throw new Error('No account or chain found');
+                }
+
+                const { message } = await requestMessage(account, chain);
+                const signature = await signer.signMessage(message);
+                const { user } = await verifyMessage(message, signature);
+                console.log('Verification result:', user);
+
+                if (user) {
+                    if (user.firstLogin) {
+                        console.log('Redirecting to register page for first login');
+                        window.location.href = '{% url 'register' %}';
+                    } else {
+                        console.log('Redirecting to my_profile after successful login');
+                        window.location.href = '{% url 'my_profile' %}';
+                    }
+                } else {
+                    alert("Authentication error");
+                }
+            } catch (error) {
+                console.error('Authentication error:', error);
+                alert("Authentication error");
+            } finally {
+                elBtnMetamask.disabled = false;
+            }
+        };
+
+        function init() {
+            elBtnMetamask.addEventListener('click', async () => {
+                console.log('Metamask button clicked. Initiating authentication.');
+                handleAuth().catch((error) => console.log(error));
+            });
+        }
+
+        window.addEventListener('load', () => {
+            init();
+        });
+    </script>
+</body>
+</html>
