@@ -119,3 +119,4 @@ NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+LOGOUT_REDIRECT_URL = 'auth'

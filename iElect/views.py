@@ -158,3 +158,21 @@ def my_profile(request):
 def index(request):
     return render(request, 'index.html')
 
+from .forms import EditProfileForm
+from django.contrib import messages  # Add this line
+def edit_profile(request):
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile Updated Successfully")
+            return redirect('/')
+    else:
+        form = EditProfileForm(instance=request.user)
+    context = {
+        'form': form,
+    }
+    return render(request, 'edit_profile.html', context)
+
+
+

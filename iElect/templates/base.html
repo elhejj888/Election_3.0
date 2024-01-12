@@ -38,6 +38,7 @@
     <link href="{% static 'css/output.css' %}" rel="stylesheet">
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="../path/to/flowbite/dist/flowbite.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.js" defer></script>
 </head>
 
 <body>
@@ -50,23 +51,30 @@
                 </a>
                 <div class="flex items-center lg:order-2">
                     {% if user.is_authenticated %}
-    <div x-data="{ dropdown: false }" class="relative">
-        <button @mouseenter="dropdown = true" @mouseleave="dropdown = false" class="flex items-center focus:outline-none">
-            <i class="fa fa-user-circle fa-lg" style="color: #8594ad;"></i>
-            <span @mouseenter="dropdown = true" @mouseleave="dropdown = false">{{ user.username }}</span>
-        </button>
-        <ul x-show="dropdown" class="absolute right-0 mt-2 bg-white border rounded shadow-lg" @mouseenter="dropdown = true" @mouseleave="dropdown = false">
-            <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Edit Profile</a></li>
-            <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Change Password</a></li>
-            <li><a href="{% url 'logout' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a></li>
-        </ul>
-    </div>
-{% else %}
-    <a href="{% url 'auth' %}" class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800 mr-8">
-        Vote Now
-    </a>
-{% endif %}
-
+                    <div x-data="{ dropdown: false }" @mouseenter="dropdown = true" @click.away="dropdown = false"
+                        class="relative">
+                        <button @mouseenter="dropdown = true" class="flex items-center focus:outline-none">
+                            <i class="fa fa-user-circle fa-lg" style="color: #8594ad;"></i>
+                            <span @mouseenter="dropdown = true" class="dark:text-white">{{ user.first_name }} {{ user.last_name }}</span>
+                        </button>
+                        <ul x-show="dropdown" class="absolute right-0 mt-2 bg-white border rounded shadow-lg" style="width: 150px;"
+                            @mouseleave="setTimeout(() => dropdown = false, 80)">
+                            <li><a href="{% url 'my_profile' %}"
+                                class="block px-4 py-2 text-gray-800 hover:bg-gray-200">My Profile</a></li>
+                            <li class="inline-block">
+                                <a href="edit_profile" class="inline-block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                                    style="white-space: nowrap;">Edit Profile</a>
+                            </li>
+                            <li><a href="{% url 'logout' %}"
+                                    class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'auth' %}"
+                        class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800 mr-8">
+                        Vote Now
+                    </a>
+                    {% endif %}
 
 
                     <button id="theme-toggle" type="button"
@@ -83,18 +91,25 @@
                         </svg>
                     </button>
                     <!-- Dark mode switcher end -->
-                    <button data-collapse-toggle="mobile-menu-2" type="button" class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="mobile-menu-2" aria-expanded="false">
+                    <button data-collapse-toggle="mobile-menu-2" type="button"
+                        class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                        aria-controls="mobile-menu-2" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
                         <!-- First SVG: Visible when the button is not expanded -->
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                            <path fill-rule="evenodd"
+                                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                clip-rule="evenodd"></path>
                         </svg>
                         <!-- Second SVG: Hidden by default, becomes visible when the button is expanded -->
-                        <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd"></path>
                         </svg>
                     </button>
-                    
+
                 </div>
                 <div class="items-center justify-between hidden w-full lg:flex lg:w-auto lg:order-1" id="mobile-menu-2">
                     <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
@@ -109,19 +124,11 @@
                         </li>
                         <li>
                             <a href="#"
-                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Marketplace</a>
+                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Elections</a>
                         </li>
                         <li>
                             <a href="#"
-                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Features</a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Team</a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
+                                class="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Contact us</a>
                         </li>
                     </ul>
                 </div>
@@ -133,7 +140,6 @@
     {% block content%}
 
     {% endblock%}
-
     <footer class="bg-white dark:bg-gray-800">
         <div class="max-w-screen-xl p-4 py-6 mx-auto lg:py-16 md:p-8 lg:p-10">
             <div class="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-5">
@@ -292,7 +298,7 @@
             var themeToggleBtn = document.getElementById('theme-toggle');
             var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
             var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-    
+
             // Check local storage and apply dark mode and icons if saved
             if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
@@ -300,28 +306,28 @@
             } else {
                 themeToggleLightIcon.classList.remove('hidden');
             }
-    
+
             // Toggle dark mode and icons on button click
             themeToggleBtn.addEventListener('click', function () {
                 document.documentElement.classList.toggle('dark');
-    
+
                 // Toggle icons inside the button based on the current mode
                 themeToggleDarkIcon.classList.toggle('hidden');
                 themeToggleLightIcon.classList.toggle('hidden');
-    
+
                 // Save preference to local storage
                 var isDarkMode = document.documentElement.classList.contains('dark');
                 localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
             });
         });
     </script>
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
 </body>
 
 </html>

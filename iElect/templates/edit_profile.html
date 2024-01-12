@@ -1,0 +1,65 @@
+{% extends 'base.html'%}
+{% load tailwind_tags %}
+{% load static %}
+{% block content%}
+{% tailwind_css %}
+<div class="font-[sans-serif] text-[#333] dark:bg-gray-900">
+    {% tailwind_css %}
+    <div class="min-h-screen flex fle-col items-center justify-center py-6 px-4">
+        <div class="grid md:grid-cols-2 items-center gap-4 max-w-7xl w-full">
+            <div class="border border-gray-300 rounded-md p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto mt-10 mb-{-16}">
+                <form method="POST" id="editProfileForm" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="mb-10">
+                        <h3 class="text-3xl font-extrabold dark:text-white">Edit Profile</h3>
+                        <p class="text-sm mt-4 dark:text-white">Update your profile information.</p>
+                    </div>
+                    <div>
+                        <label class="text-sm mb-2 block dark:text-white">Email</label>
+                        <div class="relative flex items-center">
+                            <input name="email" type="email" value="{{ user.email }}" required
+                                class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]"
+                                placeholder="Enter email" />
+                            <!-- Add any additional styling or icons here -->
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm mb-2 block dark:text-white">First Name</label>
+                        <input name="first_name" type="text" value="{{ user.first_name }}" required
+                            class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]"
+                            placeholder="Enter first name" />
+                    </div>
+                    <div>
+                        <label class="text-sm mb-2 block dark:text-white">Last Name</label>
+                        <input name="last_name" type="text" value="{{ user.last_name }}" required
+                            class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]"
+                            placeholder="Enter last name" />
+                    </div>
+                    <div>
+                        <label class="text-sm mb-2 block dark:text-white">Password</label>
+                        <div class="relative flex items-center">
+                            <input name="password" type="password" required
+                                class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]"
+                                placeholder="Enter password" />
+                            <!-- Add any additional styling or icons here -->
+                        </div>
+                    </div>
+                    <div class="!mt-10">
+                        <button type="submit"
+                            class="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded text-white bg-[#333] hover:bg-black focus:outline-none dark:text-white"
+                            id="editProfileButton">
+                            Update Profile
+                        </button>
+                    </div>
+                    <div id="editProfileMessage" style="margin-top: 10px; color: green;"></div>
+                </form>
+            </div>
+            <div class="lg:h-[400px] md:h-[300px] max-md:mt-10">
+                <img src="https://readymadeui.com/login-image.webp" class="w-full h-full object-cover"
+                    alt="Dining Experience" />
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
