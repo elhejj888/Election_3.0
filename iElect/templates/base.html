@@ -49,9 +49,26 @@
                     <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">iElect</span>
                 </a>
                 <div class="flex items-center lg:order-2">
-                    <a href="{% url 'auth' %}"
-                        class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800 mr-8">Vote
-                        Now</a>
+                    {% if user.is_authenticated %}
+    <div x-data="{ dropdown: false }" class="relative">
+        <button @mouseenter="dropdown = true" @mouseleave="dropdown = false" class="flex items-center focus:outline-none">
+            <i class="fa fa-user-circle fa-lg" style="color: #8594ad;"></i>
+            <span @mouseenter="dropdown = true" @mouseleave="dropdown = false">{{ user.username }}</span>
+        </button>
+        <ul x-show="dropdown" class="absolute right-0 mt-2 bg-white border rounded shadow-lg" @mouseenter="dropdown = true" @mouseleave="dropdown = false">
+            <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Edit Profile</a></li>
+            <li><a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Change Password</a></li>
+            <li><a href="{% url 'logout' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a></li>
+        </ul>
+    </div>
+{% else %}
+    <a href="{% url 'auth' %}" class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 sm:mr-2 lg:mr-0 dark:bg-purple-600 dark:hover:bg-purple-700 focus:outline-none dark:focus:ring-purple-800 mr-8">
+        Vote Now
+    </a>
+{% endif %}
+
+
+
                     <button id="theme-toggle" type="button"
                         class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
                         <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"

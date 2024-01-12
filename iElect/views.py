@@ -138,7 +138,7 @@ def register(request):
 
 
 def get_success_url(self):
-    return reverse('iElect:my_profile')
+    return reverse('my_profile')
 
 @login_required(login_url='/my_profile')
 def my_profile(request):
@@ -153,6 +153,7 @@ def my_profile(request):
           return render(request, 'profile.html', {'user': request.user})
   else:
       return redirect('register')
+
 
 def index(request):
     return render(request, 'index.html')
