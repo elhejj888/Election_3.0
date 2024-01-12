@@ -139,7 +139,8 @@ def register(request):
 
 def get_success_url(self):
     return reverse('iElect:my_profile')
-@login_required(login_url='/iElect/my_profile')
+
+@login_required(login_url='/my_profile')
 def my_profile(request):
   user = request.user
   eth_address = user.username
@@ -152,32 +153,6 @@ def my_profile(request):
           return render(request, 'profile.html', {'user': request.user})
   else:
       return redirect('register')
-
-class EmailAuthenticationForm(AuthenticationForm):
-    email = forms.EmailField(widget=forms.TextInput(attrs={'autofocus': True}))
-
-def email_password_login(request):
-    error_message = ''
-    if request.method == 'POST':
-        form = EmailAuthenticationForm(request, request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            user = authenticate(request, email=email, password=password)
-            print(f"Authenticated user: {user}")  # Debugging print statement
-            if user is not None:
-                login(request, user)
-                return redirect('my_profile')
-            else:
-                error_message = "Invalid login credentials"
-        else:
-            # Print form errors for debugging purposes
-            print("Form errors: ", form.errors)
-            error_message = "Invalid login form submission"
-    else:
-        form = EmailAuthenticationForm()
-
-    return render(request, 'login_email.html', {'form': form, 'error_message': error_message})
 
 def index(request):
     return render(request, 'index.html')
