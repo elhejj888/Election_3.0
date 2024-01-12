@@ -159,7 +159,7 @@ def index(request):
     return render(request, 'index.html')
 
 from .forms import EditProfileForm
-from django.contrib import messages  # Add this line
+from django.contrib import messages
 def edit_profile(request):
     if request.method == 'POST':
         form = EditProfileForm(request.POST, instance=request.user)
