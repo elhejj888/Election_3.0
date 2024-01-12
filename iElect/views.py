@@ -12,7 +12,8 @@ from .forms import RegistrationForm
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse
-
+from .forms import EditProfileForm
+from django.contrib import messages
 
 API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjBhM2I2MTRjLWQ2ZjQtNGRkOS04M2RmLTIzNmZiMjBjNzg1OCIsIm9yZ0lkIjoiMzY5NTYzIiwidXNlcklkIjoiMzc5ODE2IiwidHlwZUlkIjoiOTNiZDhjOWYtNTViZC00ZmFmLThiMTQtNTZhYTFhZmIyMjZhIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MDM1MjQ5NTcsImV4cCI6NDg1OTI4NDk1N30.CrZJcIyqcCdYMtM45pbRB4tY7-fOqwxSRhEtmE_dba0'
 
@@ -158,8 +159,6 @@ def my_profile(request):
 def index(request):
     return render(request, 'index.html')
 
-from .forms import EditProfileForm
-from django.contrib import messages
 def edit_profile(request):
     if request.method == 'POST':
         form = EditProfileForm(request.POST, instance=request.user)
