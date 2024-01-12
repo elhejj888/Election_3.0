@@ -1,30 +1,25 @@
+{% extends 'base.html'%}
 {% load tailwind_tags %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    {% tailwind_css %}
-</head>
-<body>
+{% block content%}
+{% tailwind_css %}
     <div class="font-[sans-serif] text-[#333]">
-        <div class="min-h-screen flex fle-col items-center justify-center py-6 px-4">
+        
+        <div class="min-h-screen flex fle-col items-center justify-center py-6 px-4 dark:bg-gray-900">
           <div class="grid md:grid-cols-2 items-center gap-4 max-w-7xl w-full">
             <div class="border border-gray-300 rounded-md p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
               <form class="space-y-6">
                 <div class="mb-10">
-                  <h3 class="text-3xl font-extrabold">Log in</h3>
-                  <p class="text-sm mt-4">Sign in to your account and explore a world of possibilities. Your journey begins here.</p>
+                  <h3 class="text-3xl font-extrabold dark:text-white">Log in</h3>
+                  <p class="text-sm mt-4 dark:text-white">Sign in to your account and explore a world of possibilities. Your journey begins here.</p>
                 </div>
                 <div class="!mt-10">
-                  <button id="auth-metamask" type="button" class="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded bg-orange-500 text-white bg-[#333] hover:bg-black focus:outline-none">
-                    <img src="{% static 'images/metamask.svg' %}" alt="Metamask" class="max-h-6 inline-block mr-2">
-                         Log in NOW with MetaMask
-                  </button>
+                    <button id="auth-metamask" type="button" class="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded bg-orange-500 text-white hover:bg-black focus:outline-none"> 
+                        <img src="{% static 'images/metamask.svg' %}" alt="Metamask" class="max-h-6 inline-block mr-2">
+                        Login with MetaMask
+                    </button>
+                    
                 </div>
-                <p class="text-sm !mt-10 text-center">Don't have an account <a href="javascript:void(0);" class="text-blue-600 hover:underline ml-1 whitespace-nowrap">Register here</a></p>
               </form>
             </div>
             <div class="lg:h-[400px] md:h-[300px] max-md:mt-10">
@@ -126,5 +121,4 @@
             init();
         });
     </script>
-</body>
-</html>
+{% endblock%}

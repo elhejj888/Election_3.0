@@ -1,26 +1,20 @@
+{% extends 'base.html'%}
 {% load tailwind_tags %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    {% tailwind_css %}
-</head>
-<body>
-    <div class="font-[sans-serif] text-[#333]">
+{% block content%}
+    <div class="font-[sans-serif] text-[#333] dark:bg-gray-900">
+      {% tailwind_css %}
         <div class="min-h-screen flex fle-col items-center justify-center py-6 px-4">
           <div class="grid md:grid-cols-2 items-center gap-4 max-w-7xl w-full">
-            <div class="border border-gray-300 rounded-md p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
-              <form method="POST" id="registrationForm" class="space-y-6">
+            <div class="border border-gray-300 rounded-md p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto mt-10 mb-{-16}">
+              <form method="POST" id="registrationForm" class="space-y-4">
                 {% csrf_token %}
                 <div class="mb-10">
-                  <h3 class="text-3xl font-extrabold">Sign up</h3>
-                  <p class="text-sm mt-4">Sign up to your account and explore a world of possibilities. Your journey begins here.</p>
+                  <h3 class="text-3xl font-extrabold dark:text-white">Sign up</h3>
+                  <p class="text-sm mt-4 dark:text-white">Sign up to your account and explore a world of possibilities. Your journey begins here.</p>
                 </div>
                 <div>
-                  <label class="text-sm mb-2 block">Email</label>
+                  <label class="text-sm mb-2 block dark:text-white">Email</label>
                   <div class="relative flex items-center">
                     <input name="email" type="email" required class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" placeholder="Enter email" />
                     <svg xmlns="http://www.w3.org/2000/svg" fill="#bbb" stroke="#bbb" class="w-[18px] h-[18px] absolute right-4" viewBox="0 0 24 24">
@@ -30,15 +24,15 @@
                   </div>
                 </div>
                 <div>
-                  <label class="text-sm mb-2 block">First Name</label>
+                  <label class="text-sm mb-2 block dark:text-white">First Name</label>
                   <input name="first_name" type="text" required class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" placeholder="Enter first name" />
                 </div>
                 <div>
-                  <label class="text-sm mb-2 block">Last Name</label>
+                  <label class="text-sm mb-2 block dark:text-white">Last Name</label>
                   <input name="last_name" type="text" required class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" placeholder="Enter last name" />
                 </div>
                 <div>
-                  <label class="text-sm mb-2 block">Password</label>
+                  <label class="text-sm mb-2 block dark:text-white">Password</label>
                   <div class="relative flex items-center">
                     <input name="password" type="password" required class="w-full text-sm border border-gray-300 px-4 py-3 rounded-md outline-[#333]" placeholder="Enter password" />
                     <svg xmlns="http://www.w3.org/2000/svg" fill="#bbb" stroke="#bbb" class="w-[18px] h-[18px] absolute right-4 cursor-pointer" viewBox="0 0 128 128">
@@ -47,7 +41,7 @@
                   </div>
                 </div>
                 <div class="!mt-10">
-                    <button type="button" class="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded text-white bg-[#333] hover:bg-black focus:outline-none" id="registerButton">
+                    <button type="button" class="w-full shadow-xl py-2.5 px-4 text-sm font-semibold rounded text-white bg-[#333] hover:bg-black focus:outline-none dark:text-white" id="registerButton">
                         Register
                     </button>
                 </div>
@@ -94,5 +88,4 @@
             }
         });
       </script>
-</body>
-</html>
+<{% endblock%}
