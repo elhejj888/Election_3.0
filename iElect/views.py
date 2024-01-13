@@ -257,3 +257,6 @@ def resultView(request):
     obj = Candidate.objects.all().order_by('position','-total_vote')
     # The render function is used to render the result page
     return render(request, "", {'obj':obj})
+@login_required
+def dashboard(request):
+    return render(request, 'dashboard.html')
