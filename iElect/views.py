@@ -2,12 +2,14 @@ import json
 from django.urls import reverse, reverse_lazy
 import requests
 import datetime
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render, redirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+
+from iElect.models import Candidate, ControlVote
 from .forms import RegistrationForm
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
@@ -125,7 +127,7 @@ def register(request):
              del request.session['needs_registration']
 
          # Redirect to my_profile
-         return redirect('dashboard')
+         return redirect('my_profile')
 
      else:
          # If the form is not valid, print the form errors
@@ -139,9 +141,9 @@ def register(request):
 
 
 def get_success_url(self):
-    return reverse('my_profile')
+    return reverse('dashboard.html')
 
-@login_required(login_url='/my_profile')
+@login_required(login_url='/dashboard.html')
 def my_profile(request):
   user = request.user
   eth_address = user.username
@@ -151,7 +153,7 @@ def my_profile(request):
           del request.session['needs_registration']
           return redirect('register')
       else:
-          return render(request, 'profile.html', {'user': request.user})
+          return render(request, 'dashboard.html', {'user': request.user})
   else:
       return redirect('register')
 
@@ -173,5 +175,85 @@ def edit_profile(request):
     }
     return render(request, 'edit_profile.html', context)
 
+from django.contrib.auth import login, authenticate
+from django.shortcuts import redirect
 
 
+def admin_auto_login(request):
+    # Check if the user is an admin
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('index')  # Redirect to the home page if already logged in
+
+    # If not logged in as an admin, perform automatic login
+    admin_user = authenticate(username='admin', password='your_admin_password')  # Change the password accordingly
+    if admin_user is not None:
+        login(request, admin_user)
+        return redirect('index')  # Redirect to the home page after login
+
+    return redirect('login')  # Redirect to the login page if auto-login fails
+from .models import Election,Candidate,ControlVote
+
+@login_required
+def CandidateDetailView(request, id):
+    # The obj variable is used to store the Candidate object
+    obj = get_object_or_404(Candidate, pk=id)
+    
+    # The render function is used to render the candidate detail page
+    # obj is passed to the candidate detail page to display the details of the candidate
+    return render(request, "", {'obj': obj})
+from .models import Election,Candidate,ControlVote
+
+@login_required
+def CandidateDetailView(request, id):
+    # The obj variable is used to store the Candidate object
+    obj = get_object_or_404(Candidate, pk=id)
+    
+    # The render function is used to render the candidate detail page
+    # obj is passed to the candidate detail page to display the details of the candidate
+    return render(request, "/candidate_detail.html", {'obj': obj})
+from .models import Election,Candidate,ControlVote
+@login_required
+
+def CandidateView(request, pos):
+    # The obj variable is used to store the position object
+    obj = get_object_or_404(Election, pk = pos)
+    # if statement is used to check if the request method is POST
+    if request.method == "POST":
+        # The temp variable is used to store the ControlVote object 
+        # it is used to check if the user has already voted for the position
+        temp = ControlVote.objects.get_or_create(user=request.user, position=obj)[0]
+        # if statement is used to check if the user has already voted for the position
+        if temp.status == False:
+            # The temp2 variable is used to store the Candidate object
+            # The total_vote of the candidate is incremented by 1
+            # The status of the ControlVote object is changed to True
+            # The user is redirected to the position page
+            temp2 = Candidate.objects.get(pk=request.POST.get(obj.title))
+            temp2.total_vote += 1
+            temp2.save()
+            temp.status = True
+            temp.save()
+            return HttpResponseRedirect('/position/')
+        else:
+            # if the user has already voted for the position then the user is redirected to the position page
+            # and the error message is displayed
+            messages.success(request, 'you have already been voted this position.')
+            return render(request, 'poll/candidate.html', {'obj':obj})
+    else:
+        # if the request method is not POST then the render function is used to render the candidate page
+        return render(request, 'poll/candidate.html', {'obj':obj})
+
+@login_required    
+
+def ElectionView(request):
+    # The obj variable is used to store the list of positions
+    obj = Election.objects.all()
+    # The render function is used to render the position page
+    # obj is passed to the position page to display the list of positions
+    return render(request, "poll/position.html", {'obj':obj})
+@login_required
+def resultView(request):
+    # The obj variable is used to store the list of Candidate objects
+    obj = Candidate.objects.all().order_by('position','-total_vote')
+    # The render function is used to render the result page
+    return render(request, "", {'obj':obj})

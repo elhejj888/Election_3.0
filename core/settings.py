@@ -106,6 +106,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
 TAILWIND_APP_NAME = "theme"
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -120,4 +122,4 @@ NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-LOGOUT_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'auth'
