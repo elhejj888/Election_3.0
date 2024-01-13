@@ -191,7 +191,17 @@ def admin_auto_login(request):
         return redirect('index')  # Redirect to the home page after login
 
     return redirect('login')  # Redirect to the login page if auto-login fails
+from .models import Election,Candidate,ControlVote
 
+@login_required
+def CandidateDetailView(request, id):
+    # The obj variable is used to store the Candidate object
+    obj = get_object_or_404(Candidate, pk=id)
+    
+    # The render function is used to render the candidate detail page
+    # obj is passed to the candidate detail page to display the details of the candidate
+    return render(request, "", {'obj': obj})
+from .models import Election,Candidate,ControlVote
 
 @login_required
 def CandidateDetailView(request, id):
@@ -203,6 +213,7 @@ def CandidateDetailView(request, id):
     return render(request, "/candidate_detail.html", {'obj': obj})
 from .models import Election,Candidate,ControlVote
 @login_required
+
 def CandidateView(request, pos):
     # The obj variable is used to store the position object
     obj = get_object_or_404(Election, pk = pos)
