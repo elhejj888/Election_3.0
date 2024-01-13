@@ -125,7 +125,7 @@ def register(request):
              del request.session['needs_registration']
 
          # Redirect to my_profile
-         return redirect('my_profile')
+         return redirect('dashboard.html')
 
      else:
          # If the form is not valid, print the form errors
@@ -139,9 +139,9 @@ def register(request):
 
 
 def get_success_url(self):
-    return reverse('my_profile')
+    return reverse('dashboard.html')
 
-@login_required(login_url='/my_profile')
+@login_required(login_url='/dashboard.html')
 def my_profile(request):
   user = request.user
   eth_address = user.username
@@ -151,7 +151,7 @@ def my_profile(request):
           del request.session['needs_registration']
           return redirect('register')
       else:
-          return render(request, 'profile.html', {'user': request.user})
+          return render(request, 'dashboard.html', {'user': request.user})
   else:
       return redirect('register')
 
