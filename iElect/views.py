@@ -173,5 +173,21 @@ def edit_profile(request):
     }
     return render(request, 'edit_profile.html', context)
 
+from django.contrib.auth import login, authenticate
+from django.shortcuts import redirect
+
+
+def admin_auto_login(request):
+    # Check if the user is an admin
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('index')  # Redirect to the home page if already logged in
+
+    # If not logged in as an admin, perform automatic login
+    admin_user = authenticate(username='admin', password='your_admin_password')  # Change the password accordingly
+    if admin_user is not None:
+        login(request, admin_user)
+        return redirect('index')  # Redirect to the home page after login
+
+    return redirect('login')  # Redirect to the login page if auto-login fails
 
 
