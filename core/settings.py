@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'iElect',
     'tailwind',
     'theme',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

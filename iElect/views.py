@@ -164,8 +164,8 @@ def edit_profile(request):
         form = EditProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Profile Updated Successfully")
-            return redirect('/')
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('settings')
     else:
         form = EditProfileForm(instance=request.user)
     context = {

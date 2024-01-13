@@ -8,8 +8,8 @@ urlpatterns = [
     path('my_profile', views.my_profile, name='my_profile'),
     path('verify_message', views.verify_message, name='verify_message'),
     path('register', views.register, name='register'),
-    path('edit_profile/', views.edit_profile, name='edit_profile'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+     path('edit_profile/', views.edit_profile, name='edit_profile'),
     path('', views.index, name='index'),
 ]
 appname='iElect'

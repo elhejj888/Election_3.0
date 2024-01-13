@@ -59,12 +59,8 @@
                         </button>
                         <ul x-show="dropdown" class="absolute right-0 mt-2 bg-white border rounded shadow-lg" style="width: 150px;"
                             @mouseleave="setTimeout(() => dropdown = false, 80)">
-                            <li><a href="{% url 'my_profile' %}"
-                                class="block px-4 py-2 text-gray-800 hover:bg-gray-200">My Profile</a></li>
-                            <li class="inline-block">
-                                <a href="edit_profile" class="inline-block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                                    style="white-space: nowrap;">Edit Profile</a>
-                            </li>
+                            <li><a href="{% url 'dashboard' %}"
+                                class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Dashboard</a></li>
                             <li><a href="{% url 'logout' %}"
                                     class="block px-4 py-2 text-gray-800 hover:bg-gray-200">Logout</a></li>
                         </ul>

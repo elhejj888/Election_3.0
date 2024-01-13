@@ -5,4 +5,5 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
    path('admin/', admin.site.urls),
    path('', include('iElect.urls')),
+   path('dashboard/', include('dashboard.urls')),
 ]
