@@ -125,7 +125,7 @@ def register(request):
              del request.session['needs_registration']
 
          # Redirect to my_profile
-         return redirect('my_profile')
+         return redirect('dashboard')
 
      else:
          # If the form is not valid, print the form errors
