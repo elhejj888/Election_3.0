@@ -8,8 +8,4 @@ def index(request):
 def settings(request):
     return render(request, 'settings_page.html')
 
-def elections(request):
-    return render(request, 'elections_page.html')
 
-def details(request):
-    return render(request, 'details_page.html')

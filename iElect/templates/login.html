@@ -97,7 +97,7 @@
                         window.location.href = '{% url 'register' %}';
                     } else {
                         console.log('Redirecting to my_profile after successful login');
-                        window.location.href = '{% url 'dashboard' %}';
+                        window.location.href = '{% url 'my_profile' %}';
                     }
                 } else {
                     alert("Authentication error");
