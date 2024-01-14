@@ -23,3 +23,10 @@ def election_view(request):
 def candidate_detail_view(request, candidate_id):
    candidate = get_object_or_404(Candidate, pk=candidate_id)
    return render(request, 'details_page.html', {'candidate': candidate})
+
+
+def results(request):
+    return render(request, 'results_page.html')
+
+def guidelines(request):
+    return render(request, 'guidelines_page.html')
