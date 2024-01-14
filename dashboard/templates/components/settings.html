@@ -28,14 +28,17 @@
                 </li>
             </ol>
         </nav>
-        <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">User settings</h1> {% if messages %}
-        {% for message in messages %}
-        <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-            role="alert">
-            <span class="font-medium">{{message}}
-        </div>
+        <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">User settings</h1>
+        <script>
+            {% for message in messages %}
+        
+                    Swal.fire({
+                        title: "{{ message }}",
+                        icon: "{{ message.tags }}",
+                        timer: 1500
+                    });
         {% endfor %}
-        {% endif %}
+    </script>
     </div>
     <!-- Right Content -->
     <div class="col-span-full xl:col-auto">

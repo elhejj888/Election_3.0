@@ -48,8 +48,8 @@
                 <div id="registrationMessage" style="margin-top: 10px; color: green;"></div>
               </form>
             </div>
-            <div class="lg:h-[400px] md:h-[300px] max-md:mt-10">
-              <img src="https://readymadeui.com/login-image.webp" class="w-full h-full object-cover" alt="Dining Experience" />
+            <div>
+              <img src="{% static './images/authHero.png' %}" class="w-full h-full object-cover" alt="Dining Experience" />
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@
 
                     // Redirect the user to the dynamically generated profile page URL after a short delay
                     setTimeout(() => {
-                        const profileUrl = '{% url 'my_profile' %}';
+                        const profileUrl = '{% url 'dashboard' %}';
                         window.location.href = profileUrl;
                     }, 1500); // Redirect after 1.5 seconds
                 } else {

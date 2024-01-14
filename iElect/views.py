@@ -8,6 +8,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.core.mail import send_mail
+from .forms import ContactForm
 
 from iElect.models import Candidate, ControlVote
 from .forms import RegistrationForm
@@ -260,3 +263,34 @@ def resultView(request):
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
+
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+         name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        message = form.cleaned_data['message']
+
+        
+        subject = f'New message from {name}'
+        message_body = f'Thank you for reaching out to us, {name}!\n\nWe have received your message and will get back to you as soon as possible.\n\nBest regards,\nThe iElect Team'
+            
+        send_mail(
+                subject,
+                message_body,
+                email, 
+                ['ielect43@gmail.com'],  
+                fail_silently=False,
+            )
+        messages.success(request, 'Message sent successfully!')
+        context = {'sent_message': True}
+
+        return redirect('index')  # Redirect to the index page after successful submission
+    else:
+        form = ContactForm()  # Instantiate the ContactForm
+
+    return render(request, 'contact_popup.html', {'form': form})  # Make sure to use the correct template name
+
+
