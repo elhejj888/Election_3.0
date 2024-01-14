@@ -32,17 +32,15 @@
     <!-- Right Content -->
     <div class="col-span-full xl:col-auto">
         <div class="p-5 border rounded text-center text-gray-500">
-            <img class="w-32 h-32 rounded-full mx-auto" src="https://loremflickr.com/320/320/girl" alt="">
+            <img class="w-32 h-32 rounded-full mx-auto" src="{{ candidate.picture.url }}" alt="{{ candidate.name }}">
             <div class="text-sm mt-5">
                 <a href="#"
-                    class="font-medium leading-none text-gray-900 hover:text-indigo-600 transition duration-500 ease-in-out dark:text-gray-300">Jane
-                    Doe
+                    class="font-medium leading-none text-gray-900 hover:text-indigo-600 transition duration-500 ease-in-out dark:text-gray-300">{{ candidate.name }}
                 </a>
-                <p>Blogger &amp; Youtuber</p>
+                <p>{{ candidate.position }}</p>
             </div>
         
-            <p class="mt-2 text-sm text-gray-900 dark:text-gray-300">Lorem ipsum dolor sit amet, consecte adipisicing elit. Voluptatibus quia
-                Maiores et perferendis eaque.</p>
+            <p class="mt-2 text-sm text-gray-900 dark:text-gray-300"> {{ candidate.bio }}.</p>
         </div>
     </div>
 </div>

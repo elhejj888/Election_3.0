@@ -91,7 +91,7 @@ def verify_message(request):
       request.session['needs_registration'] = True
       return JsonResponse(json.loads(x.text))
 
-
+@login_required(login_url='/auth')
 def register(request):
  if request.method == 'POST':
      form = RegistrationForm(request.POST)
@@ -260,6 +260,7 @@ def resultView(request):
     obj = Candidate.objects.all().order_by('position','-total_vote')
     # The render function is used to render the result page
     return render(request, "", {'obj':obj})
+    
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')

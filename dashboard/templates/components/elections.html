@@ -30,7 +30,6 @@
         </nav>
         <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Live Elections</h1>
     </div>
-    <!-- Right Content -->
     {% for election in elections %}
     <div class="election flex mb-10">
         {% for candidate in election.candidates.all %}
@@ -45,7 +44,7 @@
                     <span class="text-xs text-gray-500 dark:text-gray-400">{{ candidate.position }}</span>
                     <div class="flex mt-2 md:mt-4">
                         <a href="#" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-2 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Vote</a>
-                        <a href="{% url 'details' %}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-2 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700 ms-2">View Detail</a>
+                        <a href="{% url 'candidate_detail' candidate_id=candidate.id %}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-2 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700 ms-2">View Detail</a>
                     </div>
                 </div>
             </div>
