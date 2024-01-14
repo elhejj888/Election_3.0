@@ -29,27 +29,63 @@
             </ol>
         </nav>
         <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Live Elections</h1>
+        {% for election in elections %}
+        <div class="flex flex-row justify-between mt-5 ml-5">
+        <h3 class="dark:text-white font-sans md:font-serif"> {{ election.title }} </h3>
+            <div class="flex flex-row justify-between">
+                <div id="election-{{ election.id }}-countdown" data-start="{{ election.start_date|date:'Y-m-dTH:i:s' }}"
+                    data-end="{{ election.end_date|date:'Y-m-dTH:i:s' }}" class="text-right mr-6 dark:text-white">
+                    Debug: Start date: {{ election.start_date }}, End date: {{ election.end_date }}
+                </div>
+                <a href="#"
+                    class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-2 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-10">View
+                    Results</a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
     {% for election in elections %}
     <div class="election flex mb-10">
         {% for candidate in election.candidates.all %}
-            <div class="w-48 max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ml-4">
-                <!-- Candidate content -->
-                <div class="flex justify-end px-4 pt-4">
-                    <!-- Any additional election-specific content can go here -->
-                </div>
-                <div class="flex flex-col items-center pb-6">
-                    <img class="w-16 h-16 mb-2 rounded-full shadow-lg" src="{{ candidate.picture.url }}" alt="{{ Candidate.name }} image" />
-                    <h5 class="mb-1 text-lg font-medium text-gray-900 dark:text-white">{{ candidate.name }}</h5>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{ candidate.position }}</span>
-                    <div class="flex mt-2 md:mt-4">
-                        <a href="#" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-2 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Vote</a>
-                        <a href="{% url 'candidate_detail' candidate_id=candidate.id %}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-2 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700 ms-2">View Detail</a>
-                    </div>
+        <div
+            class="w-48 max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ml-4">
+            <!-- Candidate content -->
+            <div class="flex justify-end px-4 pt-4">
+                <!-- Any additional election-specific content can go here -->
+            </div>
+            <div class="flex flex-col items-center pb-6">
+                <img class="w-16 h-16 mb-2 rounded-full shadow-lg" src="{{ candidate.picture.url }}"
+                    alt="{{ Candidate.name }} image" />
+                <h5 class="mb-1 text-lg font-medium text-gray-900 dark:text-white">{{ candidate.name }}</h5>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ candidate.position }}</span>
+                <div class="flex mt-2 md:mt-4">
+                    <a href="#"
+                        class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-2 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Vote</a>
+                    <a href="{% url 'candidate_detail' candidate_id=candidate.id %}"
+                        class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-2 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-700 dark:focus:ring-gray-700 ms-2">View
+                        Detail</a>
                 </div>
             </div>
+        </div>
         {% endfor %}
         <!-- Add more candidate cards for Election 1 as needed -->
     </div>
-   {% endfor %}
+    {% endfor %}
 </div>
+<script>
+    const countdownElements = document.querySelectorAll("[id^='election-']");
+    countdownElements.forEach((element) => {
+        const startDate = new Date(element.dataset.start);
+        const endDate = new Date(element.dataset.end);
+        const countdownFunction = () => {
+            const now = new Date();
+            const differenceInTime = endDate.getTime() - now.getTime();
+            let hours = Math.floor((differenceInTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((differenceInTime % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((differenceInTime % (1000 * 60)) / 1000);
+            element.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+        };
+        countdownFunction();
+        setInterval(countdownFunction, 1000);
+    });
+</script>
