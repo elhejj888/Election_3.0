@@ -4,22 +4,20 @@ from django.urls import reverse, reverse_lazy
 import requests
 import datetime
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.core.mail import send_mail
-from .forms import ContactForm
-
-from iElect.models import Candidate, ControlVote
-from .forms import RegistrationForm
+from .forms import ContactForm, RegistrationForm, EditProfileForm
+from iElect.models import Candidate, ControlVote, Election, UserVote
 from django import forms
-
-from .forms import EditProfileForm
 from django.contrib import messages
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, models
+from django.views.decorators.csrf import csrf_protect
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.core.exceptions import ObjectDoesNotExist
 
 
 API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjBhM2I2MTRjLWQ2ZjQtNGRkOS04M2RmLTIzNmZiMjBjNzg1OCIsIm9yZ0lkIjoiMzY5NTYzIiwidXNlcklkIjoiMzc5ODE2IiwidHlwZUlkIjoiOTNiZDhjOWYtNTViZC00ZmFmLThiMTQtNTZhYTFhZmIyMjZhIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MDM1MjQ5NTcsImV4cCI6NDg1OTI4NDk1N30.CrZJcIyqcCdYMtM45pbRB4tY7-fOqwxSRhEtmE_dba0'
@@ -34,7 +32,7 @@ def request_message(request):
 
    REQUEST_URL = 'https://authapi.moralis.io/challenge/request/evm'
    from datetime import datetime, timedelta
-   # Adjusted expiration time to 5 minutes from the current time
+   
    expiration_time = (datetime.utcnow() + timedelta(minutes=5)).isoformat() + "Z"
    request_object = {
        "domain": "defi.finance",
@@ -65,16 +63,13 @@ def verify_message(request):
   print(json.loads(x.text))
   print(x.status_code)
   if x.status_code == 201:
-      # user can authenticate
       eth_address = json.loads(x.text).get('address')
       print("eth address", eth_address)
       try:
           user = User.objects.get(username=eth_address)
       except User.DoesNotExist:
-          # If user does not exist, create a new user
           user = User.objects.create_user(username=eth_address, password=None)
           user.save()
-          # Set a flag in the session to indicate that the user needs to complete the registration process
           request.session['needs_registration'] = True
       if user is not None:
           if user.is_active:
@@ -85,10 +80,8 @@ def verify_message(request):
       else:
           return JsonResponse({'error': 'account disabled'})
   else:
-      # If user does not exist, create a new user
       user = User.objects.create_user(username= eth_address, password=None)
       user.save()
-      # Set a flag in the session to indicate that the user needs to complete the registration process
       request.session['needs_registration'] = True
       return JsonResponse(json.loads(x.text))
 
@@ -96,11 +89,11 @@ def verify_message(request):
 def register(request):
  if request.method == 'POST':
      form = RegistrationForm(request.POST)
-     print("Form submitted") # Debugging print statement
+     print("Form submitted") 
 
      if form.is_valid():
-         print("Form is valid") # Debugging print statement
-         print("Form data: ", form.cleaned_data) # Debugging print statement
+         print("Form is valid")
+         print("Form data: ", form.cleaned_data) 
          eth_address = request.session.get('verified_data', {}).get('address')
 
          if not eth_address:
@@ -108,12 +101,11 @@ def register(request):
 
          try:
              user = User.objects.get(username=eth_address)
-             print(f"User exists: {user}") # Debugging print statement
+             print(f"User exists: {user}") 
          except User.DoesNotExist:
              user = User.objects.create_user(username=eth_address, password=None)
              print(f"Created new user: {user}")
 
-         # Update the existing user with the form data
          form.save(commit=False)
          user.email = form.cleaned_data['email']
          user.first_name = form.cleaned_data['first_name']
@@ -123,19 +115,15 @@ def register(request):
 
          print(f"Updated user data: {user}")
 
-         # Authenticate the user
          login(request, user)
 
-         # Remove 'needs_registration' from the session after registration
          if 'needs_registration' in request.session:
              del request.session['needs_registration']
 
-         # Redirect to my_profile
          return redirect('my_profile')
 
      else:
-         # If the form is not valid, print the form errors
-         print("Form errors: ", form.errors) # Debugging print statement
+         print("Form errors: ", form.errors) 
          return JsonResponse({'status': 'error', 'errors': form.errors})
 
  else:
@@ -180,42 +168,18 @@ def edit_profile(request):
     return render(request, 'edit_profile.html', context)
 
 from django.contrib.auth import login, authenticate
-from django.shortcuts import redirect
 
 
 def admin_auto_login(request):
-    # Check if the user is an admin
     if request.user.is_authenticated and request.user.is_staff:
-        return redirect('index')  # Redirect to the home page if already logged in
+        return redirect('index')  
 
-    # If not logged in as an admin, perform automatic login
-    admin_user = authenticate(username='admin', password='your_admin_password')  # Change the password accordingly
+    admin_user = authenticate(username='admin', password='your_admin_password')  
     if admin_user is not None:
         login(request, admin_user)
-        return redirect('index')  # Redirect to the home page after login
+        return redirect('index')  
 
-    return redirect('login')  # Redirect to the login page if auto-login fails
-from .models import Election,Candidate,ControlVote, UserVote
-from django.views.decorators.csrf import csrf_protect
-from django.utils import timezone
-
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.db.models import Count
-from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
-from .models import Election, Candidate, ControlVote, UserVote
-
-
-from django.db import IntegrityError, models
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.db.models import Count
-from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
-from .models import Election, Candidate, ControlVote, UserVote
+    return redirect('login')  
 
 @login_required
 def CandidateView(request, pos):
@@ -296,40 +260,6 @@ def voteView(request, election_id, candidate_id):
 
   return redirect('elections')
 
-
-@login_required
-@transaction.atomic
-@csrf_protect
-def voteView(request, election_id, candidate_id):
- election = get_object_or_404(Election, pk=election_id)
- candidate = get_object_or_404(Candidate, pk=candidate_id)
-
- now = timezone.now()
- if not (election.start_date <= now <= election.end_date):
-     request.session['message'] = 'Voting is not currently open for this election.'
-     request.session['message_type'] = 'error'
-     return redirect('elections')
-
- if UserVote.objects.filter(user=request.user, election=election).exists():
-     request.session['message'] = 'You have already voted in this election.'
-     request.session['message_type'] = 'warning'
-     return redirect('elections')
-
- if ControlVote.objects.filter(user=request.user, position=candidate).exists():
-     request.session['message'] = 'You have already voted for this candidate.'
-     request.session['message_type'] = 'warning'
-     return redirect('elections')
-
- ControlVote.objects.create(user=request.user, position=candidate).save()
-
- UserVote.objects.create(user=request.user, election=election).save()
-
- request.session['message'] = 'Your vote has been recorded. Thank you for voting!'
- request.session['message_type'] = 'success'
-
- return redirect('elections')
-
-
 def clear_messages(request):
     request.session.pop('message', None)
     request.session.pop('message_type', None)
@@ -357,10 +287,10 @@ def contact(request):
         messages.success(request, 'Message sent successfully!')
         context = {'sent_message': True}
 
-        return redirect('index')  # Redirect to the index page after successful submission
+        return redirect('index')  
     else:
-        form = ContactForm()  # Instantiate the ContactForm
+        form = ContactForm() 
 
-    return render(request, 'contact_popup.html', {'form': form})  # Make sure to use the correct template name
+    return render(request, 'contact_popup.html', {'form': form})  
 
 
