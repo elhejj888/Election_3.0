@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware'
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -114,8 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Africa/Casablanca'
 USE_I18N = True
 
 USE_TZ = True
@@ -152,3 +152,4 @@ messages.SUCCESS: 'alert-success',
 messages.WARNING: 'alert-warning',
 messages.ERROR: 'alert-danger',
 }
+CSRF_COOKIE_SECURE = True

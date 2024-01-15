@@ -3,7 +3,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.urls import path
-from .views import admin_auto_login
+from .views import admin_auto_login, voteView
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin_auto_login/', admin_auto_login, name='admin_auto_login'),
     path('dashboard/', include('dashboard.urls')),
     path('contact', views.contact, name='contact'),
+    path('vote/<int:election_id>/<int:candidate_id>/', voteView, name='vote'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

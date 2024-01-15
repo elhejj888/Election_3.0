@@ -1,4 +1,5 @@
 import json
+from time import timezone
 from django.urls import reverse, reverse_lazy
 import requests
 import datetime
@@ -15,10 +16,11 @@ from .forms import ContactForm
 from iElect.models import Candidate, ControlVote
 from .forms import RegistrationForm
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
-from django.http import HttpResponse
+
 from .forms import EditProfileForm
 from django.contrib import messages
+from django.db import IntegrityError, transaction
+
 
 API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjBhM2I2MTRjLWQ2ZjQtNGRkOS04M2RmLTIzNmZiMjBjNzg1OCIsIm9yZ0lkIjoiMzY5NTYzIiwidXNlcklkIjoiMzc5ODE2IiwidHlwZUlkIjoiOTNiZDhjOWYtNTViZC00ZmFmLThiMTQtNTZhYTFhZmIyMjZhIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3MDM1MjQ5NTcsImV4cCI6NDg1OTI4NDk1N30.CrZJcIyqcCdYMtM45pbRB4tY7-fOqwxSRhEtmE_dba0'
 
@@ -31,10 +33,9 @@ def request_message(request):
    print(data)
 
    REQUEST_URL = 'https://authapi.moralis.io/challenge/request/evm'
-   
+   from datetime import datetime, timedelta
    # Adjusted expiration time to 5 minutes from the current time
-   expiration_time = (datetime.datetime.utcnow() + datetime.timedelta(minutes=5)).isoformat() + "Z"
-
+   expiration_time = (datetime.utcnow() + timedelta(minutes=5)).isoformat() + "Z"
    request_object = {
        "domain": "defi.finance",
        "chainId": 1,
@@ -194,76 +195,202 @@ def admin_auto_login(request):
         return redirect('index')  # Redirect to the home page after login
 
     return redirect('login')  # Redirect to the login page if auto-login fails
-from .models import Election,Candidate,ControlVote
+from .models import Election,Candidate,ControlVote, UserVote
+from django.views.decorators.csrf import csrf_protect
+from django.utils import timezone
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+from .models import Election, Candidate, ControlVote, UserVote
 
 @login_required
 def CandidateDetailView(request, id):
-    # The obj variable is used to store the Candidate object
-    obj = get_object_or_404(Candidate, pk=id)
-    
-    # The render function is used to render the candidate detail page
-    # obj is passed to the candidate detail page to display the details of the candidate
-    return render(request, "", {'obj': obj})
-from .models import Election,Candidate,ControlVote
+ obj = get_object_or_404(Candidate, pk=id)
+ return render(request, "/candidate_detail.html", {'obj': obj})
 
 @login_required
-def CandidateDetailView(request, id):
-    # The obj variable is used to store the Candidate object
-    obj = get_object_or_404(Candidate, pk=id)
-    
-    # The render function is used to render the candidate detail page
-    # obj is passed to the candidate detail page to display the details of the candidate
-    return render(request, "/candidate_detail.html", {'obj': obj})
-from .models import Election,Candidate,ControlVote
-@login_required
-
-def CandidateView(request, pos):
-    # The obj variable is used to store the position object
-    obj = get_object_or_404(Election, pk = pos)
-    # if statement is used to check if the request method is POST
-    if request.method == "POST":
-        # The temp variable is used to store the ControlVote object 
-        # it is used to check if the user has already voted for the position
-        temp = ControlVote.objects.get_or_create(user=request.user, position=obj)[0]
-        # if statement is used to check if the user has already voted for the position
-        if temp.status == False:
-            # The temp2 variable is used to store the Candidate object
-            # The total_vote of the candidate is incremented by 1
-            # The status of the ControlVote object is changed to True
-            # The user is redirected to the position page
-            temp2 = Candidate.objects.get(pk=request.POST.get(obj.title))
-            temp2.total_vote += 1
-            temp2.save()
-            temp.status = True
-            temp.save()
-            return HttpResponseRedirect('/position/')
-        else:
-            # if the user has already voted for the position then the user is redirected to the position page
-            # and the error message is displayed
-            messages.success(request, 'you have already been voted this position.')
-            return render(request, 'poll/candidate.html', {'obj':obj})
-    else:
-        # if the request method is not POST then the render function is used to render the candidate page
-        return render(request, 'poll/candidate.html', {'obj':obj})
-
-@login_required    
-
 def ElectionView(request):
-    # The obj variable is used to store the list of positions
-    obj = Election.objects.all()
-    # The render function is used to render the position page
-    # obj is passed to the position page to display the list of positions
-    return render(request, "poll/position.html", {'obj':obj})
+ elections = Election.objects.all()
+ for election in elections:
+     election.candidates = Candidate.objects.filter(election=election)
+     election.user_votes = UserVote.objects.filter(user=request.user, election=election)
+ return render(request, "elections.html", {'elections': elections})
+
 @login_required
-def resultView(request):
-    # The obj variable is used to store the list of Candidate objects
-    obj = Candidate.objects.all().order_by('position','-total_vote')
-    # The render function is used to render the result page
-    return render(request, "", {'obj':obj})
-    
+def CandidateView(request, pos):
+ obj = get_object_or_404(Election, pk=pos)
+
+ if request.method == "POST":
+    candidate_id = request.POST.get('candidate_id')
+    candidate = get_object_or_404(Candidate, pk=candidate_id)
+
+    now = timezone.now()
+    if not (obj.start_date <= now <= obj.end_date):
+        messages.error(request, 'Voting is not currently open for this election.')
+        return redirect('elections')
+
+    control_vote, created = ControlVote.objects.get_or_create(user=request.user, position=candidate)
+    if control_vote.status:
+        messages.warning(request, 'You have already voted for this candidate.')
+        return redirect('elections')
+
+    candidate.total_vote += 1
+    candidate.save()
+
+    control_vote.status = True
+    control_vote.save()
+
+    UserVote.objects.create(user=request.user, election=obj).save()
+
+    messages.success(request, 'Your vote has been recorded. Thank you for voting!')
+    return redirect('elections')
+
+ else:
+    candidates = Candidate.objects.filter(election=obj)
+    candidates_dict = []
+    for candidate in candidates:
+        control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=candidate)
+        candidates_dict.append({
+            'candidate': candidate,
+            'already_voted': control_vote.status
+        })
+
+    return render(request, 'elections.html', {'obj': obj, 'candidates': candidates_dict})
+
+
+from django.db import IntegrityError, models
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+from .models import Election, Candidate, ControlVote, UserVote
+
 @login_required
-def dashboard(request):
-    return render(request, 'dashboard.html')
+def CandidateDetailView(request, id):
+  obj = get_object_or_404(Candidate, pk=id)
+  return render(request, "/candidate_detail.html", {'obj': obj})
+
+@login_required
+def ElectionView(request):
+  elections = Election.objects.all()
+  for election in elections:
+      election.candidates = Candidate.objects.filter(election=election)
+      election.user_votes = UserVote.objects.filter(user=request.user, election=election)
+  return render(request, "elections.html", {'elections': elections})
+
+@login_required
+def CandidateView(request, pos):
+ obj = get_object_or_404(Election, pk=pos)
+
+ if request.method == "POST":
+  candidate_id = request.POST.get('candidate_id')
+  candidate = get_object_or_404(Candidate, pk=candidate_id)
+
+  now = timezone.now()
+  if not (obj.start_date <= now <= obj.end_date):
+      request.session['message'] = 'Voting is not currently open for this election.'
+      request.session['message_type'] = 'error'
+      return redirect('elections')
+
+  if UserVote.objects.filter(user=request.user, election=obj).exists():
+      request.session['message'] = 'You have already voted in this election.'
+      request.session['message_type'] = 'warning'
+      return redirect('elections')
+
+  control_vote, created = ControlVote.objects.get_or_create(user=request.user, position=candidate)
+  if control_vote.status:
+      request.session['message'] = 'You have already voted for this candidate.'
+      request.session['message_type'] = 'warning'
+      return redirect('elections')
+
+  candidate.total_vote += 1
+  candidate.save()
+
+  control_vote.status = True
+  control_vote.save()
+
+  UserVote.objects.create(user=request.user, election=obj).save()
+
+  request.session['message'] = 'Your vote has been recorded. Thank you for voting!'
+  request.session['message_type'] = 'success'
+  return redirect('elections')
+
+ else:
+  candidates = Candidate.objects.filter(election=obj)
+  candidates_dict = []
+  for candidate in candidates:
+      control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=candidate)
+      candidates_dict.append({
+          'candidate': candidate,
+          'already_voted': control_vote.status
+      })
+
+  return render(request, 'elections.html', {'obj': obj, 'candidates': candidates_dict})
+
+@login_required
+@transaction.atomic
+@csrf_protect
+def voteView(request, election_id, candidate_id):
+ election = get_object_or_404(Election, pk=election_id)
+ candidate = get_object_or_404(Candidate, pk=candidate_id)
+
+ now = timezone.now()
+ if not (election.start_date <= now <= election.end_date):
+   request.session['message'] = 'Voting is not currently open for this election.'
+   request.session['message_type'] = 'error'
+   return redirect('elections')
+
+ if UserVote.objects.filter(user=request.user, election=election).exists():
+   request.session['message'] = 'You have already voted in this election.'
+   request.session['message_type'] = 'warning'
+   return redirect('elections')
+
+ if ControlVote.objects.filter(user=request.user, position=candidate).exists():
+   request.session['message'] = 'You have already voted for this candidate.'
+   request.session['message_type'] = 'warning'
+   return redirect('elections')
+
+ candidate.total_vote += 1
+ candidate.save()
+
+ ControlVote.objects.create(user=request.user, position=candidate).save()
+ UserVote.objects.create(user=request.user, election=election).save()
+
+ request.session['message'] = 'Your vote has been recorded. Thank you for voting!'
+ request.session['message_type'] = 'success'
+ return redirect('elections')
+
+
+
+def results(request):
+    # Query all candidates ordered by total votes
+    candidates = Candidate.objects.all().order_by('-total_vote')
+
+    # Calculate total votes
+    total_votes = sum(candidate.total_vote for candidate in candidates)
+
+    # Calculate the percentage for each candidate
+    candidates_with_percentage = []
+    for candidate in candidates:
+        if total_votes == 0:
+            percentage = 0
+        else:
+            percentage = (candidate.total_vote / total_votes) * 100
+
+        candidates_with_percentage.append({'candidate': candidate, 'percentage': percentage})
+
+    context = {
+        'candidates_with_percentage': candidates_with_percentage,
+    }
+
+    return render(request, 'results.html', context)
+
 
 
 def contact(request):
