@@ -219,52 +219,83 @@ from .models import Election, Candidate, ControlVote, UserVote
 
 @login_required
 def CandidateView(request, pos):
- obj = get_object_or_404(Election, pk=pos)
+  obj = get_object_or_404(Election, pk=pos)
 
- if request.method == "POST":
-  candidate_id = request.POST.get('candidate_id')
+  if request.method == "POST":
+      candidate_id = request.POST.get('candidate_id')
+      candidate = get_object_or_404(Candidate, pk=candidate_id)
+
+      now = timezone.now()
+      if not (obj.start_date <= now <= obj.end_date):
+          request.session['message'] = 'Voting is not currently open for this election.'
+          request.session['message_type'] = 'error'
+          return redirect('elections')
+
+      if UserVote.objects.filter(user=request.user, election=obj).exists():
+          request.session['message'] = 'You have already voted in this election.'
+          request.session['message_type'] = 'warning'
+          return redirect('elections')
+
+      control_vote, created = ControlVote.objects.get_or_create(user=request.user, position=candidate)
+      if control_vote.status:
+          request.session['message'] = 'You have already voted for this candidate.'
+          request.session['message_type'] = 'warning'
+          return redirect('elections')
+
+      control_vote.status = True
+      control_vote.save()
+
+      UserVote.objects.create(user=request.user, election=obj).save()
+
+      request.session['message'] = 'Your vote has been recorded. Thank you for voting!'
+      request.session['message_type'] = 'success'
+      return redirect('elections')
+
+  else:
+      candidates = Candidate.objects.filter(election=obj)
+      candidates_dict = []
+      for candidate in candidates:
+          control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=candidate)
+          candidates_dict.append({
+              'candidate': candidate,
+              'already_voted': control_vote.status
+          })
+
+      return render(request, 'elections.html', {'obj': obj, 'candidates': candidates_dict})
+
+
+@login_required
+@transaction.atomic
+@csrf_protect
+def voteView(request, election_id, candidate_id):
+  election = get_object_or_404(Election, pk=election_id)
   candidate = get_object_or_404(Candidate, pk=candidate_id)
 
   now = timezone.now()
-  if not (obj.start_date <= now <= obj.end_date):
+  if not (election.start_date <= now <= election.end_date):
       request.session['message'] = 'Voting is not currently open for this election.'
       request.session['message_type'] = 'error'
       return redirect('elections')
 
-  if UserVote.objects.filter(user=request.user, election=obj).exists():
+  if UserVote.objects.filter(user=request.user, election=election).exists():
       request.session['message'] = 'You have already voted in this election.'
       request.session['message_type'] = 'warning'
       return redirect('elections')
 
-  control_vote, created = ControlVote.objects.get_or_create(user=request.user, position=candidate)
-  if control_vote.status:
+  if ControlVote.objects.filter(user=request.user, position=candidate).exists():
       request.session['message'] = 'You have already voted for this candidate.'
       request.session['message_type'] = 'warning'
       return redirect('elections')
 
-  candidate.total_vote += 1
-  candidate.save()
+  ControlVote.objects.create(user=request.user, position=candidate).save()
 
-  control_vote.status = True
-  control_vote.save()
-
-  UserVote.objects.create(user=request.user, election=obj).save()
+  UserVote.objects.create(user=request.user, election=election).save()
 
   request.session['message'] = 'Your vote has been recorded. Thank you for voting!'
   request.session['message_type'] = 'success'
+
   return redirect('elections')
 
- else:
-  candidates = Candidate.objects.filter(election=obj)
-  candidates_dict = []
-  for candidate in candidates:
-      control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=candidate)
-      candidates_dict.append({
-          'candidate': candidate,
-          'already_voted': control_vote.status
-      })
-
-  return render(request, 'elections.html', {'obj': obj, 'candidates': candidates_dict})
 
 @login_required
 @transaction.atomic
@@ -275,24 +306,22 @@ def voteView(request, election_id, candidate_id):
 
  now = timezone.now()
  if not (election.start_date <= now <= election.end_date):
-   request.session['message'] = 'Voting is not currently open for this election.'
-   request.session['message_type'] = 'error'
-   return redirect('elections')
+     request.session['message'] = 'Voting is not currently open for this election.'
+     request.session['message_type'] = 'error'
+     return redirect('elections')
 
  if UserVote.objects.filter(user=request.user, election=election).exists():
-   request.session['message'] = 'You have already voted in this election.'
-   request.session['message_type'] = 'warning'
-   return redirect('elections')
+     request.session['message'] = 'You have already voted in this election.'
+     request.session['message_type'] = 'warning'
+     return redirect('elections')
 
  if ControlVote.objects.filter(user=request.user, position=candidate).exists():
-   request.session['message'] = 'You have already voted for this candidate.'
-   request.session['message_type'] = 'warning'
-   return redirect('elections')
-
- candidate.total_vote += 1
- candidate.save()
+     request.session['message'] = 'You have already voted for this candidate.'
+     request.session['message_type'] = 'warning'
+     return redirect('elections')
 
  ControlVote.objects.create(user=request.user, position=candidate).save()
+
  UserVote.objects.create(user=request.user, election=election).save()
 
  request.session['message'] = 'Your vote has been recorded. Thank you for voting!'
