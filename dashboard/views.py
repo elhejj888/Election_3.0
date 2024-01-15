@@ -5,9 +5,11 @@ from iElect.models import Election, Candidate
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='/auth')
 def index(request):
     return render(request, 'dashboard.html')
 
+@login_required(login_url='/auth')
 def settings(request):
     return render(request, 'settings_page.html')
 
@@ -45,10 +47,11 @@ def candidate_detail_view(request, candidate_id):
    candidate = get_object_or_404(Candidate, pk=candidate_id)
    return render(request, 'details_page.html', {'candidate': candidate})
 
-
+@login_required(login_url='/auth')
 def results(request):
     return render(request, 'results_page.html')
 
+@login_required(login_url='/auth')
 def guidelines(request):
     return render(request, 'guidelines_page.html')
 
