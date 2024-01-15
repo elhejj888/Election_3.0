@@ -1098,6 +1098,10 @@ select {
   height: 100vh;
 }
 
+.h-7 {
+  height: 1.75rem;
+}
+
 .max-h-6 {
   max-height: 1.5rem;
 }
