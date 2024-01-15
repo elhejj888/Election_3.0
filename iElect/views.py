@@ -207,60 +207,6 @@ from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Election, Candidate, ControlVote, UserVote
 
-@login_required
-def CandidateDetailView(request, id):
- obj = get_object_or_404(Candidate, pk=id)
- return render(request, "/candidate_detail.html", {'obj': obj})
-
-@login_required
-def ElectionView(request):
- elections = Election.objects.all()
- for election in elections:
-     election.candidates = Candidate.objects.filter(election=election)
-     election.user_votes = UserVote.objects.filter(user=request.user, election=election)
- return render(request, "elections.html", {'elections': elections})
-
-@login_required
-def CandidateView(request, pos):
- obj = get_object_or_404(Election, pk=pos)
-
- if request.method == "POST":
-    candidate_id = request.POST.get('candidate_id')
-    candidate = get_object_or_404(Candidate, pk=candidate_id)
-
-    now = timezone.now()
-    if not (obj.start_date <= now <= obj.end_date):
-        messages.error(request, 'Voting is not currently open for this election.')
-        return redirect('elections')
-
-    control_vote, created = ControlVote.objects.get_or_create(user=request.user, position=candidate)
-    if control_vote.status:
-        messages.warning(request, 'You have already voted for this candidate.')
-        return redirect('elections')
-
-    candidate.total_vote += 1
-    candidate.save()
-
-    control_vote.status = True
-    control_vote.save()
-
-    UserVote.objects.create(user=request.user, election=obj).save()
-
-    messages.success(request, 'Your vote has been recorded. Thank you for voting!')
-    return redirect('elections')
-
- else:
-    candidates = Candidate.objects.filter(election=obj)
-    candidates_dict = []
-    for candidate in candidates:
-        control_vote, _ = ControlVote.objects.get_or_create(user=request.user, position=candidate)
-        candidates_dict.append({
-            'candidate': candidate,
-            'already_voted': control_vote.status
-        })
-
-    return render(request, 'elections.html', {'obj': obj, 'candidates': candidates_dict})
-
 
 from django.db import IntegrityError, models
 
@@ -270,19 +216,6 @@ from django.db.models import Count
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from .models import Election, Candidate, ControlVote, UserVote
-
-@login_required
-def CandidateDetailView(request, id):
-  obj = get_object_or_404(Candidate, pk=id)
-  return render(request, "/candidate_detail.html", {'obj': obj})
-
-@login_required
-def ElectionView(request):
-  elections = Election.objects.all()
-  for election in elections:
-      election.candidates = Candidate.objects.filter(election=election)
-      election.user_votes = UserVote.objects.filter(user=request.user, election=election)
-  return render(request, "elections.html", {'elections': elections})
 
 @login_required
 def CandidateView(request, pos):
