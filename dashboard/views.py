@@ -30,3 +30,31 @@ def results(request):
 
 def guidelines(request):
     return render(request, 'guidelines_page.html')
+
+def results(request, election_id):
+   election = Election.objects.get(pk=election_id)
+
+   candidates = Candidate.objects.filter(election=election).order_by('-total_vote')
+
+   total_votes = sum(candidate.total_vote for candidate in candidates)
+
+   candidates_with_percentage = []
+   for candidate in candidates:
+       if total_votes == 0:
+           percentage = 0
+       else:
+           percentage = (candidate.total_vote / total_votes) * 100
+
+       candidates_with_percentage.append({
+           'candidate': candidate,
+           'percentage': percentage
+       })
+
+   print(candidates_with_percentage) # Add this line
+
+   context = {
+       'election': election,
+       'candidates_with_percentage': candidates_with_percentage,
+   }
+
+   return render(request, 'results_page.html', context)

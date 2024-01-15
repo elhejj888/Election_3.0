@@ -21,6 +21,10 @@ class Candidate(models.Model):
    def user_has_voted(self, user):
        control_vote = ControlVote.objects.filter(user=user, position=self).first()
        return control_vote.user_has_voted(user, self) if control_vote else False
+    
+   def update_vote_count(self):
+        self.total_vote = self.controlvote_set.count()
+        self.save()
 
    def __str__(self):
        return self.name
@@ -34,6 +38,10 @@ class ControlVote(models.Model):
 
    def user_has_voted(self, user, candidate):
        return ControlVote.objects.filter(user=user, position=candidate).exists()
+
+   def save(self, *args, **kwargs):
+       super().save(*args, **kwargs)
+       self.position.update_vote_count()
   
 class UserVote(models.Model):
    user = models.ForeignKey(User, on_delete=models.CASCADE)

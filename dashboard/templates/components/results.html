@@ -38,8 +38,8 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                         style="width: {{ candidate_data.percentage }}%;">
-                        {{ candidate_data.percentage }}%
+                        style="width: {{ candidate_data.percentage|floatformat:2 }}%;">
+                        {{ candidate_data.percentage|floatformat:2 }}%
                     </div>
                     <div class="text-sm font-medium text-gray-500 dark:text-gray-400">
                         {{ candidate_data.candidate.total_vote }} votes
@@ -47,5 +47,4 @@
                 </div>
             </div>
         {% endfor %}
-    </div>
-</div>
+    </div></div>
