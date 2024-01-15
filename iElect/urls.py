@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin_auto_login/', admin_auto_login, name='admin_auto_login'),
     path('dashboard/', include('dashboard.urls')),
     path('contact', views.contact, name='contact'),
+    path('clear-messages/', views.clear_messages, name='clear_messages'),
     path('vote/<int:election_id>/<int:candidate_id>/', voteView, name='vote'),
 ]
 if settings.DEBUG:

@@ -297,10 +297,15 @@ def voteView(request, election_id, candidate_id):
 
  request.session['message'] = 'Your vote has been recorded. Thank you for voting!'
  request.session['message_type'] = 'success'
+
  return redirect('elections')
 
 
-
+def clear_messages(request):
+    request.session.pop('message', None)
+    request.session.pop('message_type', None)
+    return JsonResponse({'status': 'success'})
+    
 def results(request):
     # Query all candidates ordered by total votes
     candidates = Candidate.objects.all().order_by('-total_vote')
