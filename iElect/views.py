@@ -306,31 +306,6 @@ def clear_messages(request):
     request.session.pop('message_type', None)
     return JsonResponse({'status': 'success'})
     
-def results(request):
-    # Query all candidates ordered by total votes
-    candidates = Candidate.objects.all().order_by('-total_vote')
-
-    # Calculate total votes
-    total_votes = sum(candidate.total_vote for candidate in candidates)
-
-    # Calculate the percentage for each candidate
-    candidates_with_percentage = []
-    for candidate in candidates:
-        if total_votes == 0:
-            percentage = 0
-        else:
-            percentage = (candidate.total_vote / total_votes) * 100
-
-        candidates_with_percentage.append({'candidate': candidate, 'percentage': percentage})
-
-    context = {
-        'candidates_with_percentage': candidates_with_percentage,
-    }
-
-    return render(request, 'results.html', context)
-
-
-
 def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
