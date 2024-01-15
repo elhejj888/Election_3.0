@@ -3,14 +3,19 @@
     $(document).ready(function() {
         var message = "{{ request.session.message }}";
         var messageType = "{{ request.session.message_type }}";
-     
+       
         if (message && messageType) {
             Swal.fire({
                 icon: messageType,
                 text: message
+            }).then(function(){
+                // Clear the message from the session
+                delete request.session['message'];
+                delete request.session['message_type'];
             });
         }
-     });         
+       });
+              
 </script>
 <div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 mt-11" style="margin-left: 260px;">
     <div class="mb-4 col-span-full xl:mb-2">
