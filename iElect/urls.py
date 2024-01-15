@@ -3,7 +3,7 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.urls import path
-from .views import admin_auto_login, voteView
+from .views import voteView
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -14,7 +14,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('edit_profile/', views.edit_profile, name='edit_profile'),
     path('', views.index, name='index'),
-    path('admin_auto_login/', admin_auto_login, name='admin_auto_login'),
     path('dashboard/', include('dashboard.urls')),
     path('contact', views.contact, name='contact'),
     path('clear-messages/', views.clear_messages, name='clear_messages'),

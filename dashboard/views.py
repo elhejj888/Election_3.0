@@ -13,14 +13,35 @@ def settings(request):
 
 @login_required(login_url='/auth')
 def election_view(request):
+ """
+    Displays a list of elections along with their candidates.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+    HttpResponse: Renders the 'elections_page.html' template with a context
+                  containing a list of elections and their associated candidates.
+ """
  elections = Election.objects.all()
  for election in elections:
    election.candidates = Candidate.objects.filter(election=election)
  print(f"Number of elections: {len(elections)}")
  return render(request, 'elections_page.html', {'elections': elections})
 
+
 @login_required(login_url='/auth')
 def candidate_detail_view(request, candidate_id):
+   """
+    Displays details for a specific candidate.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+    - candidate_id (int): The primary key of the Candidate object.
+
+    Returns:
+    HttpResponse: Renders the 'details_page.html' template with details of the specified candidate.
+   """
    candidate = get_object_or_404(Candidate, pk=candidate_id)
    return render(request, 'details_page.html', {'candidate': candidate})
 
@@ -32,6 +53,16 @@ def guidelines(request):
     return render(request, 'guidelines_page.html')
 
 def results(request, election_id):
+ """
+    Displays the election results, including candidate details and vote percentages.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+    - election_id (int): The primary key of the Election object.
+
+    Returns:
+    HttpResponse: Renders the 'results_page.html' template with details of the specified election results.
+ """
  election = Election.objects.get(pk=election_id)
 
  candidates = Candidate.objects.filter(election=election).order_by('id')

@@ -27,6 +27,15 @@ def moralis_auth(request):
 
 
 def request_message(request):
+   """
+    Handles a request to create and send an authentication challenge.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+    JsonResponse: A JSON response containing the result of the request.
+   """
    data = json.loads(request.body)
    print(data)
 
@@ -52,6 +61,15 @@ def request_message(request):
    return JsonResponse(json.loads(x.text))
 
 def verify_message(request):
+  """
+    Handles a request to verify an authentication challenge and perform user authentication.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object containing the authentication data.
+
+    Returns:
+    JsonResponse: A JSON response containing the result of the verification process.
+  """
   data = json.loads(request.body)
   print(data)
 
@@ -87,6 +105,16 @@ def verify_message(request):
 
 @login_required(login_url='/auth')
 def register(request):
+ """
+    Handles user registration based on a submitted registration form.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+    HttpResponse: A rendered HTML page for user registration or a JSON response
+                  indicating the status of the registration process.
+ """
  if request.method == 'POST':
      form = RegistrationForm(request.POST)
      print("Form submitted") 
@@ -154,6 +182,16 @@ def index(request):
     return render(request, 'index.html')
 
 def edit_profile(request):
+    """
+    Handles the editing of the user profile based on a submitted form.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+    HttpResponse: A rendered HTML page for editing the user profile or a redirection
+                  to the settings page after successful profile update.
+    """
     if request.method == 'POST':
         form = EditProfileForm(request.POST, instance=request.user)
         if form.is_valid():
@@ -169,20 +207,19 @@ def edit_profile(request):
 
 from django.contrib.auth import login, authenticate
 
-
-def admin_auto_login(request):
-    if request.user.is_authenticated and request.user.is_staff:
-        return redirect('index')  
-
-    admin_user = authenticate(username='admin', password='your_admin_password')  
-    if admin_user is not None:
-        login(request, admin_user)
-        return redirect('index')  
-
-    return redirect('login')  
-
 @login_required
 def CandidateView(request, pos):
+  """
+    Handles the view for a specific election position and candidate voting.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+    - pos (int): The primary key of the Election object.
+
+    Returns:
+    HttpResponse: A rendered HTML page displaying election information and candidate list.
+                  Handles user voting and redirects based on the voting outcome.
+  """
   obj = get_object_or_404(Election, pk=pos)
 
   if request.method == "POST":
@@ -232,6 +269,17 @@ def CandidateView(request, pos):
 @transaction.atomic
 @csrf_protect
 def voteView(request, election_id, candidate_id):
+  """
+    Handles user voting for a specific candidate in an election.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+    - election_id (int): The primary key of the Election object.
+    - candidate_id (int): The primary key of the Candidate object.
+
+    Returns:
+    HttpResponse: Redirects to the 'elections' page based on the voting outcome.
+  """
   election = get_object_or_404(Election, pk=election_id)
   candidate = get_object_or_404(Candidate, pk=candidate_id)
 
@@ -261,11 +309,30 @@ def voteView(request, election_id, candidate_id):
   return redirect('elections')
 
 def clear_messages(request):
+    """
+    Clears any messages stored in the session.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+    JsonResponse: A JSON response indicating the status of the operation.
+    """
     request.session.pop('message', None)
     request.session.pop('message_type', None)
     return JsonResponse({'status': 'success'})
     
 def contact(request):
+    """
+    Handles the contact form submission.
+
+    Parameters:
+    - request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+    HttpResponse: Redirects to the 'index' page after processing the contact form.
+                  Displays a success message on successful form submission.
+    """
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
