@@ -1,0 +1,6 @@
+projectKey=iElect2
+serverUrl=http://localhost:8084
+serverVersion=8.7.1.42226
+dashboardUrl=http://localhost:8084/dashboard?id=iElect2
+ceTaskId=AY95WtWr4SGoXY-_G15I
+ceTaskUrl=http://localhost:8084/api/ce/task?id=AY95WtWr4SGoXY-_G15I
