@@ -1,5 +1,6 @@
 # Fichiers d'environnement
 .env
+.scannerwork/
 
 # Fichiers de configuration spécifiques à l'utilisateur
 *.pyc
